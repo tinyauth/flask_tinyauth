@@ -1,6 +1,5 @@
-from flask import current_app
 import requests
-
+from flask import current_app
 
 session = requests.Session()
 

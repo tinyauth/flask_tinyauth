@@ -14,7 +14,6 @@ from flask_restful import reqparse
 
 from . import api
 
-
 CURRENT_JS_HASH = 'b9228724'
 
 login_blueprint = Blueprint('frontend', __name__, static_folder=None)
