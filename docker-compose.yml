@@ -23,6 +23,8 @@ services:
     environment:
       - POSTGRES_USER=tinyauth
       - POSTGRES_PASSWORD=tinyauth
+    ports:
+      - "5000:5000"
 
   flask:
     build:

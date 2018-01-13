@@ -16,7 +16,12 @@ from . import api
 
 CURRENT_JS_HASH = 'b9228724'
 
-login_blueprint = Blueprint('frontend', __name__, static_folder=None)
+login_blueprint = Blueprint(
+    'login',
+    __name__,
+    static_folder=None,
+    template_folder=os.path.join(os.path.dirname(__file__), 'templates'),
+)
 
 user_parser = reqparse.RequestParser()
 user_parser.add_argument('username', type=str, location='json', required=True)
@@ -54,7 +59,7 @@ def logout():
 def login():
     return render_template(
        'frontend/login.html',
-       js_hash='login/main.{CURRENT_JS_HASH}.js',
+       js_path=f'login/static/main.{CURRENT_JS_HASH}.js',
       )
 
 
