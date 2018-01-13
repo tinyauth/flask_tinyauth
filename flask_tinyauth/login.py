@@ -78,6 +78,7 @@ def login_post():
 
     response = jsonify({})
     response.set_cookie('tinysess', tokens['token'], httponly=True, secure=True, expires=expires)
-    response.set_cookie('tinycsrf', tokens['csrf'], httponly=False, secure=True, expires=expires)
+    if 'csrf' in tokens:
+        response.set_cookie('tinycsrf', tokens['csrf'], httponly=False, secure=True, expires=expires)
 
     return response

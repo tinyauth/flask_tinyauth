@@ -1,8 +1,12 @@
+import logging
+
 import requests
 from flask import current_app
 
 from . import exceptions
 
+
+logger = logging.getLogger('flask_tinyauth.api')
 session = requests.Session()
 
 
@@ -39,8 +43,9 @@ def call(api, request):
                 'Content-Type': 'application/json',
             },
             json=request,
-        ).json()
+        )
     except requests.exceptions.ConnectionError as e:
+        logger.critical('Unable to connect to authentication backend', exc_info=e)
         raise exceptions.ConnectionError()
 
-    return response
+    return response.json()

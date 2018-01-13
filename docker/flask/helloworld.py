@@ -8,7 +8,7 @@ app.register_blueprint(login_blueprint)
 app.config['TINYAUTH_SERVICE'] = 'helloworld'
 app.config['TINYAUTH_REGION'] = 'eu-west-1'
 app.config['TINYAUTH_PARTITION'] = 'primary'
-app.config['TINYAUTH_ENDPOINT'] = 'http://localhost:5000/'
+app.config['TINYAUTH_ENDPOINT'] = 'http://tinyauth:5000/'
 app.config['TINYAUTH_ACCESS_KEY_ID'] = 'gatekeeper'
 app.config['TINYAUTH_SECRET_ACCESS_KEY'] = 'keymaster'
 
