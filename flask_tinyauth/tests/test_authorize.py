@@ -3,6 +3,7 @@ import unittest
 from unittest import mock
 
 from flask import Flask
+from werkzeug.datastructures import Headers
 
 from flask_tinyauth import authorize, login
 
@@ -23,12 +24,12 @@ class TestAuthorize(unittest.TestCase):
 
         @self.app.route('/')
         def index():
-            authorize.authorize_or_401('TestPermission', 'res_class', 'res_type')
+            authorize.authorize_or_401('TestPermission', 'res_class', 'res_key')
             return 'INDEX'
 
         @self.app.route('/hi')
         def hi():
-            authorize.authorize_or_login('TestPermission', 'res_class', 'res_type')
+            authorize.authorize_or_login('TestPermission', 'res_class', 'res_key')
             return 'INDEX'
 
         self._ctx = self.app.test_request_context()
@@ -43,6 +44,19 @@ class TestAuthorize(unittest.TestCase):
             'Authorized': True,
         }
         response = self.client.get('/')
+
+        assert session.post.call_args is not None
+        assert session.post.call_args[0][0] == 'http://localhost/api/v1/services/test/authorize-by-token'
+        request_kwargs = session.post.call_args[1]
+        assert request_kwargs['auth'] == ('root', 'password')
+        assert request_kwargs['headers']['Accept'] =='application/json'
+        assert request_kwargs['headers']['Content-Type'] == 'application/json'
+        assert request_kwargs['json']['permit'] == {
+            'TestPermission': ['arn:tinyauth:test:default::res_class/res_key']
+        }
+        assert request_kwargs['json']['context']['SourceIp'] == '127.0.0.1'
+        assert Headers(request_kwargs['json']['headers'])['Content-Length'] == '0'
+
         assert response.status_code == 200
         assert response.get_data(as_text=True) == 'INDEX'
 
