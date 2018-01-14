@@ -28,6 +28,11 @@ class TestAuthorize(unittest.TestCase):
             authorize.authorize_or_401('TestPermission', 'res_class', 'res_key')
             return 'INDEX'
 
+        @self.app.route('/sub-page')
+        def sub_page():
+            authorize.authorize_or_401('TestSubPagePermission')
+            return 'SUB-PAGE'
+
         @self.app.route('/hi')
         def hi():
             authorize.authorize_or_login('TestPermission', 'res_class', 'res_key')
@@ -60,6 +65,26 @@ class TestAuthorize(unittest.TestCase):
 
         assert response.status_code == 200
         assert response.get_data(as_text=True) == 'INDEX'
+
+    @mock.patch('flask_tinyauth.api.session')
+    def test_authorize_or_401_no_resource_instance_authd(self, session):
+        session.post.return_value.json.return_value = {
+            'Authorized': True,
+        }
+        response = self.client.get('/sub-page')
+
+        assert session.post.call_args is not None
+        assert session.post.call_args[0][0] == 'http://localhost/api/v1/services/test/authorize-by-token'
+        request_kwargs = session.post.call_args[1]
+        assert request_kwargs['auth'] == ('root', 'password')
+        assert request_kwargs['headers']['Accept'] == 'application/json'
+        assert request_kwargs['headers']['Content-Type'] == 'application/json'
+        assert request_kwargs['json']['permit'] == {
+            'TestSubPagePermission': ['arn:tinyauth:test:default::']
+        }
+
+        assert response.status_code == 200
+        assert response.get_data(as_text=True) == 'SUB-PAGE'
 
     @mock.patch('flask_tinyauth.api.session')
     def test_authorize_or_401_not_authd(self, session):

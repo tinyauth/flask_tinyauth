@@ -16,11 +16,11 @@ def get_arn_base():
         current_app.config['TINYAUTH_SERVICE'],
         current_app.config.get('TINYAUTH_REGION', 'default'),
         ''
-    ))
+    )) + ':'
 
 
 def format_arn(resource_class, resource=''):
-    return ':'.join((
+    return ''.join((
         get_arn_base(),
         '/'.join((resource_class, resource))
     ))
