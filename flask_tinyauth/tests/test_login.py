@@ -21,16 +21,6 @@ class TestAuthorize(unittest.TestCase):
         self.app.register_blueprint(login.login_blueprint)
         self.client = self.app.test_client()
 
-        @self.app.route('/')
-        def index():
-            authorize.authorize_or_401('TestPermission', 'res_class', 'res_key')
-            return 'INDEX'
-
-        @self.app.route('/hi')
-        def hi():
-            authorize.authorize_or_login('TestPermission', 'res_class', 'res_key')
-            return 'INDEX'
-
         self._ctx = self.app.test_request_context()
         self._ctx.push()
 
