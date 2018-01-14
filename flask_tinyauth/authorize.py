@@ -1,6 +1,6 @@
 import datetime
 
-from flask import abort, jsonify, make_response, request, url_for
+from flask import abort, current_app, jsonify, make_response, request, url_for
 
 from . import api, exceptions, redirect
 
@@ -27,6 +27,11 @@ def authorize(permission, resource_class=None, resource='', ctx=None):
 
 
 def authorize_or_401(permission, resource_class=None, resource='', ctx=None):
+    if current_app.config.get('TINYAUTH_BYPASS', False):
+        return {
+            'Authorized': True,
+        }
+
     try:
         authorized = authorize(permission, resource_class, resource, ctx)
     except exceptions.AuthorizationFailed:
@@ -39,6 +44,11 @@ def authorize_or_401(permission, resource_class=None, resource='', ctx=None):
 
 
 def authorize_or_login(permission, resource_class=None, resource='', ctx=None):
+    if current_app.config.get('TINYAUTH_BYPASS', False):
+        return {
+            'Authorized': True,
+        }
+
     try:
         authorized = authorize(permission, resource_class, resource, ctx)
     except exceptions.AuthorizationFailed:
@@ -46,5 +56,19 @@ def authorize_or_login(permission, resource_class=None, resource='', ctx=None):
 
     if authorized['Authorized'] is not True:
         raise redirect.Redirect(url_for('login.login'))
+
+    return authorized
+
+
+def authorize_or_raise(permission, resource_class=None, resource='', ctx=None):
+    if current_app.config.get('TINYAUTH_BYPASS', False):
+        return {
+            'Authorized': True,
+        }
+
+    authorized = authorize(permission, resource_class, resource, ctx)
+
+    if authorized['Authorized'] is not True:
+        raise exceptions.AuthorizationFailed()
 
     return authorized
