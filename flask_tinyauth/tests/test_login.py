@@ -4,7 +4,7 @@ from unittest import mock
 
 from flask import Flask
 
-from flask_tinyauth import authorize, login
+from flask_tinyauth import login
 
 
 class TestAuthorize(unittest.TestCase):

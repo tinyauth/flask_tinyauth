@@ -3,6 +3,7 @@ import unittest
 from unittest import mock
 
 from flask import Flask
+from requests import exceptions
 from werkzeug.datastructures import Headers
 
 from flask_tinyauth import authorize, login
@@ -65,6 +66,15 @@ class TestAuthorize(unittest.TestCase):
         session.post.return_value.json.return_value = {
             'Authorized': False,
         }
+        response = self.client.get('/')
+        assert response.status_code == 401
+        assert json.loads(response.get_data(as_text=True)) == {
+            "Authorized": False
+        }
+
+    @mock.patch('flask_tinyauth.api.session')
+    def test_authorize_or_401_connection_error(self, session):
+        session.post.side_effect = exceptions.ConnectionError()
         response = self.client.get('/')
         assert response.status_code == 401
         assert json.loads(response.get_data(as_text=True)) == {

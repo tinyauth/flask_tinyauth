@@ -30,7 +30,7 @@ def authorize_or_401(permission, resource_class=None, resource='', ctx=None):
     try:
         authorized = authorize(permission, resource_class, resource, ctx)
     except exceptions.AuthorizationFailed:
-        abort(make_response(jsonify(authorized), 401))
+        abort(make_response(jsonify({'Authorized': False}), 401))
 
     if authorized['Authorized'] is not True:
         abort(make_response(jsonify(authorized), 401))
