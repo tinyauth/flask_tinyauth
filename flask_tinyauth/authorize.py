@@ -1,6 +1,6 @@
 import datetime
 
-from flask import abort, request, url_for
+from flask import abort, jsonify, make_response, request, url_for
 
 from . import api, exceptions, redirect
 
@@ -30,10 +30,10 @@ def authorize_or_401(permission, resource_class=None, resource='', ctx=None):
     try:
         authorized = authorize(permission, resource_class, resource, ctx)
     except exceptions.AuthorizationFailed:
-        abort(401, {})
+        abort(make_response(jsonify(authorized), 401))
 
     if authorized['Authorized'] is not True:
-        abort(401, authorized)
+        abort(make_response(jsonify(authorized), 401))
 
     return authorized
 
