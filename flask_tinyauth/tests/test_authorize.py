@@ -98,3 +98,10 @@ class TestAuthorize(unittest.TestCase):
         response = self.client.get('/hi')
         assert response.status_code == 302
         assert response.headers['Location'] == 'http://localhost/login'
+
+    @mock.patch('flask_tinyauth.api.session')
+    def test_authorize_or_login_connection_error(self, session):
+        session.post.side_effect = exceptions.ConnectionError()
+        response = self.client.get('/hi')
+        assert response.status_code == 302
+        assert response.headers['Location'] == 'http://localhost/login'

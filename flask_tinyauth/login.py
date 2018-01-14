@@ -1,6 +1,5 @@
 import datetime
 import os
-from urllib.parse import urljoin, urlparse
 
 from flask import (
     Blueprint,
@@ -26,12 +25,6 @@ login_blueprint = Blueprint(
 user_parser = reqparse.RequestParser()
 user_parser.add_argument('username', type=str, location='json', required=True)
 user_parser.add_argument('password', type=str, location='json', required=True)
-
-
-def is_safe_url(target):
-    ref_url = urlparse(request.host_url)
-    test_url = urlparse(urljoin(request.host_url, target))
-    return test_url.scheme in ('http', 'https') and ref_url.netloc == test_url.netloc
 
 
 @login_blueprint.route('/login/static/<path:path>')
