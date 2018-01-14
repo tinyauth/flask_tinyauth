@@ -1,8 +1,10 @@
 from flask import Flask
 from flask_tinyauth import login_blueprint, authorize_or_401, authorize_or_login
-
+from werkzeug.contrib.fixers import ProxyFix
 
 app = Flask(__name__)
+app.wsgi_app = ProxyFix(app.wsgi_app)
+
 app.register_blueprint(login_blueprint)
 
 app.config['TINYAUTH_SERVICE'] = 'helloworld'

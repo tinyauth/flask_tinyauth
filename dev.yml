@@ -32,3 +32,13 @@ services:
       - "8000:8000"
     volumes:
       - .:/app/src
+
+  nginx:
+    build: ./docker/nginx
+    volumes:
+      - nginx_tls:/etc/nginx/external/
+    depends_on:
+      - flask
+    ports:
+      - "0.0.0.0:443:443"
+    restart: always
