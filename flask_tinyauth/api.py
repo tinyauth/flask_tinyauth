@@ -5,7 +5,6 @@ from flask import current_app
 
 from . import exceptions
 
-
 logger = logging.getLogger('flask_tinyauth.api')
 session = requests.Session()
 
