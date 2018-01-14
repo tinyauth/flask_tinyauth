@@ -37,6 +37,22 @@ class TestAuthorize(unittest.TestCase):
     def tearDown(self):
         self._ctx.pop()
 
+    def test_static_404(self):
+        response = self.client.get('/login/static/missing.css')
+        assert response.status_code == 404
+
+    def test_static_serves_js(self):
+        response = self.client.get('/login/static/main.b9228724.js')
+        assert response.status_code == 200
+        assert response.headers['Content-Type'] == 'application/javascript'
+
+    def test_login_get(self):
+        response = self.client.get('/login')
+        assert response.status_code == 200
+        assert response.headers['Content-Type'] == 'text/html; charset=utf-8'
+        assert response.get_data(as_text=True).strip().startswith('<!DOCTYPE html>\n<html lang="en">')
+        assert response.get_data(as_text=True).strip().endswith('</html>')
+
     @mock.patch('flask_tinyauth.api.session')
     def test_login_post(self, session):
         session.post.return_value.json.return_value = {
@@ -50,6 +66,7 @@ class TestAuthorize(unittest.TestCase):
         }))
 
         assert response.status_code == 200
+        assert response.headers['Content-Type'] == 'application/json'
         assert json.loads(response.get_data(as_text=True)) == {}
 
         assert session.post.call_args is not None
@@ -63,3 +80,17 @@ class TestAuthorize(unittest.TestCase):
             'username': 'root',
             'password': 'password',
         }
+
+    def test_logout(self):
+        self.client.set_cookie('localhost', 'tinycsrf', 'sdsdsd')
+        self.client.set_cookie('localhost', 'tinysess', 'sdsdsd')
+
+        response = self.client.get('/logout')
+
+        assert response.status_code == 302
+        assert response.headers['Location'] == 'http://localhost/login'
+
+        assert response.headers.get_all('Set-Cookie') == [
+            'tinysess=; Expires=Thu, 01-Jan-1970 00:00:00 GMT; Path=/',
+            'tinycsrf=; Expires=Thu, 01-Jan-1970 00:00:00 GMT; Path=/',
+        ]
