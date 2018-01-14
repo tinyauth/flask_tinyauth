@@ -49,7 +49,7 @@ class TestAuthorize(unittest.TestCase):
         assert session.post.call_args[0][0] == 'http://localhost/api/v1/services/test/authorize-by-token'
         request_kwargs = session.post.call_args[1]
         assert request_kwargs['auth'] == ('root', 'password')
-        assert request_kwargs['headers']['Accept'] =='application/json'
+        assert request_kwargs['headers']['Accept'] == 'application/json'
         assert request_kwargs['headers']['Content-Type'] == 'application/json'
         assert request_kwargs['json']['permit'] == {
             'TestPermission': ['arn:tinyauth:test:default::res_class/res_key']
