@@ -116,6 +116,7 @@ The backend to connect to is controlled by these settings:
  * `TINYAUTH_ENDPOINT`: The `https://` endpoint to access to authorize a HTTP request.
  * `TINYAUTH_ACCESS_KEY_ID`: Access key for a tinyauth user with permission to authorize requests for this service.
  * `TINYAUTH_SECRET_ACCESS_KEY`: Secret key for this user
+ * `TINYAUTH_ENDPOINT_VERIFY`: Either a boolean, in which case it controls whether we verify the server's TLS certificate, or a string, in which case it must be a path to a CA bundle to use. Defaults to True.
 
 Each permission check is for a permission and an `arn` that globally identifies an instance of a resource. An arn is constructed in the following form:
 

@@ -42,6 +42,7 @@ def call(api, request):
                 'Content-Type': 'application/json',
             },
             json=request,
+            verify=current_app.config.get('TINYAUTH_VERIFY', True),
         )
     except requests.exceptions.ConnectionError as e:
         logger.critical('Unable to connect to authentication backend', exc_info=e)
