@@ -109,6 +109,31 @@ app.register_blueprint(login_blueprint)
 This assumes that you have an API at `/api` guarded with `authorize_or_401` or `authorize_or_raise` and a page at `/` that serves your React app guarded with `authorize_or_login`.
 
 
+## Settings
+
+The backend to connect to is controlled by these settings:
+
+ * `TINYAUTH_ENDPOINT`: The `https://` endpoint to access to authorize a HTTP request.
+ * `TINYAUTH_ACCESS_KEY_ID`: Access key for a tinyauth user with permission to authorize requests for this service.
+ * `TINYAUTH_SECRET_ACCESS_KEY`: Secret key for this user
+
+Each permission check is for a permission and an `arn` that globally identifies an instance of a resource. An arn is constructed in the following form:
+
+```
+arn:partition:service:region::resource_type/resource_instance
+```
+
+The following settings control the `arn` used for your service.
+
+ * `TINYAUTH_PARTITION`: Optional, defaults to `tinyauth`. A partition is a multi-region tinyauth cluster. For example, Amazon have the `aws` partition and the `aws-cn` partition. IAM users existing in the `aws` partition work for all regions in the `aws` partition. At a more modest scale, you likely have a production and test partition.
+ * `TINYAUTH_SERVICE`: Required. This is your services name. This should be short and lowercase. Its how your microservice can be differentiated from other microservices of different types.
+ * `TINYAUTH_REGION`: Optional, defaults to `default`. If you have multiple instances of your service in different data centers then you have regions, and tinyauth can consider there authorization requirements seperately.
+
+Additionally development environments can set:
+
+ * `TINYAUTH_BYPASS`: All `authorize_*` functions return that a user is authorized, completely bypassing auditing, authentication and authorization.
+
+
 ## Dev Environment
 
 You can get a simple dev environment with Docker and docker-compose. Dev happens on macOS with Docker for Mac:
