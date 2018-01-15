@@ -4,6 +4,110 @@
 
 Helper functions (and blueprints) for integrating tinyauth authorization into your flask microservices.
 
+## Protecting an API
+
+```
+from flask import Flask
+from flask_tinyauth import authorize_or_401
+
+
+app = Flask(__name__)
+
+app.config['TINYAUTH_SERVICE'] = 'test'
+app.config['TINYAUTH_ENDPOINT'] = 'http://localhost/'
+app.config['TINYAUTH_ACCESS_KEY_ID'] = 'gatekeeper'
+app.config['TINYAUTH_SECRET_ACCESS_KEY'] = 'keymaster'
+
+@app.route('/api/v1/apples/list')
+def list_apples():
+    authorize_or_401('ListApples', 'apples')
+    return jsonify([{'name': 'fred', 'weight': 50, 'color': 'red'}])
+
+@app.route('/api/v1/apples/<name:path>')
+def get_apple(name):
+    authorize_or_401('GetApple', 'apples', name)
+    return jsonify({'name': 'fred', 'weight': 50, 'color': 'red'})
+```
+
+Accessing `/api/v1/apples/list` will do a permissions test for `ListApples` with resource set to `arn:tinyauth:test:default::apples/`. Accessing `/api/v1/apples/fred` will do a permissions test for `GetApple` with resource set to `arn:tinyauth:test:default::apples/fred`.
+
+This helper will return a 401 response (via flasks `abort()` mechanism) with a JSON error message if the user is not authenticated or does not have the required access.
+
+# Customizing the authentication message
+
+The `authorize_or_raise` variant works exactly the same as `authorize_or_401` only it allows authentication and authorization exceptions to be raised. These can then be handled by flask and `app.errorhandler`:
+
+```
+from flask import Flask
+from flask_tinyauth import AuthorizationFailed, authorize_or_401
+
+
+app = Flask(__name__)
+
+app.config['TINYAUTH_SERVICE'] = 'test'
+app.config['TINYAUTH_ENDPOINT'] = 'http://localhost/'
+app.config['TINYAUTH_ACCESS_KEY_ID'] = 'gatekeeper'
+app.config['TINYAUTH_SECRET_ACCESS_KEY'] = 'keymaster'
+
+@app.route('/api/v1/apples/list')
+def list_apples():
+    authorize_or_raise('ListApples', 'apples')
+    return jsonify([{'name': 'fred', 'weight': 50, 'color': 'red'}])
+
+@self.app.errorhandler(AuthorizationFailed)
+def handle_invalid_usage(error):
+    return 'Authorization has failed'
+```
+
+# Protecting a user interface
+
+flask_tinyauth is primarily for authenticating for API microservices. But you can build user interfaces with it too. In that case `authorize_or_401` is not appropriate - you will want to redirect the user to a login page not show them a JSON 401.
+
+You can do this with `authorize_or_login`
+
+```
+from flask import Flask
+from flask_tinyauth import authorize_or_login
+
+
+app = Flask(__name__)
+
+app.config['TINYAUTH_SERVICE'] = 'test'
+app.config['TINYAUTH_ENDPOINT'] = 'http://localhost/'
+app.config['TINYAUTH_ACCESS_KEY_ID'] = 'gatekeeper'
+app.config['TINYAUTH_SECRET_ACCESS_KEY'] = 'keymaster'
+
+@app.route('/')
+def list_apples():
+    authorize_or_login('AccessWebInterface')
+    return '<html></html>'
+```
+
+
+## Adding a login page
+
+The following is the bare minimum required to get a functional login page for your site (and logoff). Note that this **does not** protect any of your views by itself.
+
+```
+from flask import Flask
+from flask_tinyauth import login_blueprint
+
+
+app = Flask(__name__)
+
+app.config['TINYAUTH_SERVICE'] = 'test'
+app.config['TINYAUTH_ENDPOINT'] = 'http://localhost/'
+app.config['TINYAUTH_ACCESS_KEY_ID'] = 'gatekeeper'
+app.config['TINYAUTH_SECRET_ACCESS_KEY'] = 'keymaster'
+
+app.register_blueprint(login_blueprint)
+```
+
+
+## admin-on-rest
+
+This assumes that you have an API at `/api` guarded with `authorize_or_401` or `authorize_or_raise` and a page at `/` that serves your React app guarded with `authorize_or_login`.
+
 
 ## Dev Environment
 
