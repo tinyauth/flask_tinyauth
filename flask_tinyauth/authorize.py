@@ -6,6 +6,11 @@ from . import api, exceptions, redirect
 
 
 def authorize(permission, resource_class=None, resource='', ctx=None):
+    if current_app.config.get('TINYAUTH_BYPASS', False):
+        return {
+            'Authorized': True,
+        }
+
     context = {
         'SourceIp': request.remote_addr,
         'RequestDateTime': datetime.datetime.utcnow().isoformat(),
@@ -27,11 +32,6 @@ def authorize(permission, resource_class=None, resource='', ctx=None):
 
 
 def authorize_or_401(permission, resource_class=None, resource='', ctx=None):
-    if current_app.config.get('TINYAUTH_BYPASS', False):
-        return {
-            'Authorized': True,
-        }
-
     try:
         authorized = authorize(permission, resource_class, resource, ctx)
     except exceptions.AuthorizationFailed:
@@ -44,11 +44,6 @@ def authorize_or_401(permission, resource_class=None, resource='', ctx=None):
 
 
 def authorize_or_login(permission, resource_class=None, resource='', ctx=None):
-    if current_app.config.get('TINYAUTH_BYPASS', False):
-        return {
-            'Authorized': True,
-        }
-
     try:
         authorized = authorize(permission, resource_class, resource, ctx)
     except exceptions.AuthorizationFailed:
@@ -61,11 +56,6 @@ def authorize_or_login(permission, resource_class=None, resource='', ctx=None):
 
 
 def authorize_or_raise(permission, resource_class=None, resource='', ctx=None):
-    if current_app.config.get('TINYAUTH_BYPASS', False):
-        return {
-            'Authorized': True,
-        }
-
     authorized = authorize(permission, resource_class, resource, ctx)
 
     if authorized['Authorized'] is not True:
